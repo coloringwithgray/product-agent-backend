@@ -1,4 +1,5 @@
-require('dotenv').config();  // Load variables from .env
+// server.js
+require('dotenv').config();  // Load environment variables from .env
 const express = require('express');
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
@@ -36,7 +37,7 @@ app.post('/ask', async (req, res) => {
     ];
 
     const response = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo', 
+      model: 'gpt-3.5-turbo',  // Use your desired model
       messages: messages,
       max_tokens: 300,
       temperature: 0.7,
@@ -45,7 +46,8 @@ app.post('/ask', async (req, res) => {
     const answer = response.data.choices[0].message.content;
     res.json({ reply: answer });
   } catch (error) {
-    console.error('Error fetching from OpenAI:', error);
+    // Log detailed error information
+    console.error('Error fetching from OpenAI:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: 'Error processing your request.' });
   }
 });
@@ -54,4 +56,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
+
 

@@ -10,35 +10,61 @@ const morgan = require('morgan'); // For HTTP request logging
 const rateLimit = require('express-rate-limit');
 const redis = require('redis');
 
-// Initialize Express app
 const app = express();
 
-// Middleware Setup
+// =======================
+// Middleware Configuration
+// =======================
+
+// Enable CORS for all routes
 app.use(cors());
+
+// Parse incoming JSON requests
 app.use(express.json());
-app.use(morgan('combined')); // Logs HTTP requests
+
+// HTTP request logging using morgan
+app.use(morgan('combined'));
 
 // Rate Limiting to prevent abuse
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes.',
+  message:
+    'Too many requests from this IP, please try again after 15 minutes.',
 });
 app.use(limiter);
 
-// Verify that the OpenAI API key is loaded
-if (!process.env.OPENAI_API_KEY) {
-  console.error('Error: OPENAI_API_KEY is not set in the environment variables.');
-  process.exit(1); // Exit the application if API key is missing
+// =======================
+// Environment Variable Validation
+// =======================
+
+const requiredEnvVars = ['OPENAI_API_KEY', 'ADMIN_API_KEY'];
+const missingEnvVars = requiredEnvVars.filter(
+  (varName) => !process.env[varName]
+);
+
+if (missingEnvVars.length > 0) {
+  console.error(
+    `Error: Missing required environment variables: ${missingEnvVars.join(
+      ', '
+    )}`
+  );
+  process.exit(1); // Exit the application if any required env vars are missing
 }
 
-// Configure OpenAI API
+// =======================
+// OpenAI Configuration
+// =======================
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
+// =======================
 // Redis Client Setup
+// =======================
+
 const redisClient = redis.createClient({
   socket: {
     host: process.env.REDIS_HOST || '127.0.0.1',
@@ -48,46 +74,52 @@ const redisClient = redis.createClient({
 });
 
 redisClient.on('error', (err) => {
-  console.error('Redis Client Error', err);
+  console.error('❌ Redis Client Error:', err);
 });
 
-(async () => {
-  await redisClient.connect();
-  console.log('Connected to Redis');
-})();
+// =======================
+// Chat History Management
+// =======================
 
-// Path to your JSON file
 const chatHistoryPath = path.join(__dirname, 'chatHistory.json');
 
-// Load chat history from JSON
+// Function to load chat history from JSON file
 function loadChatHistory() {
   try {
     if (fs.existsSync(chatHistoryPath)) {
       const data = fs.readFileSync(chatHistoryPath, 'utf-8');
-      console.log('Loaded chat history.');
+      console.log('✅ Loaded chat history.');
       return JSON.parse(data);
     } else {
-      console.log('chatHistory.json does not exist. Creating a new one.');
+      console.log('ℹ️ chatHistory.json does not exist. Creating a new one.');
       fs.writeFileSync(chatHistoryPath, '[]', 'utf-8');
       return [];
     }
   } catch (error) {
-    console.error('Error reading chat history:', error.message);
+    console.error('❌ Error reading chat history:', error.message);
     return [];
   }
 }
 
-// Save chat history to JSON
+// Function to save chat history to JSON file
 function saveChatHistory(chatHistory) {
   try {
-    fs.writeFileSync(chatHistoryPath, JSON.stringify(chatHistory, null, 2), 'utf-8');
-    console.log('Chat history saved successfully.');
+    fs.writeFileSync(
+      chatHistoryPath,
+      JSON.stringify(chatHistory, null, 2),
+      'utf-8'
+    );
+    console.log('✅ Chat history saved successfully.');
   } catch (error) {
-    console.error('Error saving chat history:', error.message);
+    console.error('❌ Error saving chat history:', error.message);
   }
 }
 
-// Generate embedding for a given text using OpenAI's API
+// =======================
+// Utility Functions
+// =======================
+
+// Function to generate embedding using OpenAI's API
 async function getEmbedding(text) {
   try {
     const response = await openai.createEmbedding({
@@ -96,12 +128,15 @@ async function getEmbedding(text) {
     });
     return response.data.data[0].embedding;
   } catch (error) {
-    console.error('Error generating embedding:', error.response?.data || error.message);
+    console.error(
+      '❌ Error generating embedding:',
+      error.response?.data || error.message
+    );
     return null;
   }
 }
 
-// Compute cosine similarity between two vectors
+// Function to compute cosine similarity between two vectors
 function cosineSimilarity(vecA, vecB) {
   let dotProduct = 0;
   let normA = 0;
@@ -115,39 +150,13 @@ function cosineSimilarity(vecA, vecB) {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-// Initialize chat history
-let chatHistory = loadChatHistory();
+// =======================
+// Authentication Middleware
+// =======================
 
-// Function to ensure all chat entries have embeddings
-async function initializeEmbeddings() {
-  let updated = false;
-  for (let chat of chatHistory) {
-    if (!chat.embedding) {
-      console.log(`Generating embedding for question: "${chat.question}"`);
-      const embedding = await getEmbedding(chat.question);
-      if (embedding) {
-        chat.embedding = embedding;
-        updated = true;
-      } else {
-        console.warn(`Failed to generate embedding for question: "${chat.question}"`);
-      }
-    }
-  }
-  if (updated) {
-    saveChatHistory(chatHistory);
-    console.log('Updated chat history with new embeddings.');
-  } else {
-    console.log('All chat entries already have embeddings.');
-  }
-}
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
-// Call initializeEmbeddings at startup
-initializeEmbeddings();
-
-// Secure Endpoints with API Key
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'your-default-admin-api-key'; // Change to a secure key
-
-// Middleware for API key authentication
+// Middleware to authenticate admin routes
 function authenticate(req, res, next) {
   const apiKey = req.headers['x-api-key'];
   if (apiKey && apiKey === ADMIN_API_KEY) {
@@ -157,27 +166,70 @@ function authenticate(req, res, next) {
   }
 }
 
-// Endpoint to ask questions
+// =======================
+// Application Routes
+// =======================
+
+let chatHistory = loadChatHistory();
+
+// Function to initialize embeddings for existing chat history
+async function initializeEmbeddings() {
+  let updated = false;
+  for (let chat of chatHistory) {
+    if (!chat.embedding) {
+      console.log(`🔄 Generating embedding for question: "${chat.question}"`);
+      const embedding = await getEmbedding(chat.question);
+      if (embedding) {
+        chat.embedding = embedding;
+        updated = true;
+      } else {
+        console.warn(
+          `⚠️ Failed to generate embedding for question: "${chat.question}"`
+        );
+      }
+    }
+  }
+  if (updated) {
+    saveChatHistory(chatHistory);
+    console.log('✅ Updated chat history with new embeddings.');
+  } else {
+    console.log('ℹ️ All chat entries already have embeddings.');
+  }
+}
+
+// Endpoint to handle questions
 app.post('/ask', async (req, res) => {
   try {
     const userQuestion = req.body.question;
-    if (!userQuestion) {
-      return res.status(400).json({ error: 'Question is required.' });
+    if (
+      !userQuestion ||
+      typeof userQuestion !== 'string' ||
+      userQuestion.trim() === ''
+    ) {
+      return res.status(400).json({ error: 'Invalid question format.' });
     }
 
-    console.log(`Received question: "${userQuestion}"`);
+    console.log(`📝 Received question: "${userQuestion}"`);
 
     // Check Redis cache first
-    const cachedAnswer = await redisClient.get(userQuestion);
+    let cachedAnswer;
+    try {
+      cachedAnswer = await redisClient.get(userQuestion);
+    } catch (err) {
+      console.error('❌ Redis GET error:', err);
+    }
+
     if (cachedAnswer) {
-      console.log('Retrieved answer from cache.');
+      console.log('🔍 Retrieved answer from Redis cache.');
       return res.json({ reply: cachedAnswer });
     }
 
     // Generate embedding for the user question
     const userEmbedding = await getEmbedding(userQuestion);
     if (!userEmbedding) {
-      return res.status(500).json({ error: 'Failed to generate embedding for the question.' });
+      return res
+        .status(500)
+        .json({ error: 'Failed to generate embedding for the question.' });
     }
 
     // Find the most similar question in chatHistory
@@ -197,15 +249,25 @@ app.post('/ask', async (req, res) => {
     const similarityThreshold = 0.8; // Adjust based on testing
 
     if (bestMatch && maxSimilarity >= similarityThreshold) {
-      console.log(`Found a similar question with similarity ${maxSimilarity.toFixed(2)}: "${bestMatch.question}"`);
+      console.log(
+        `✅ Found a similar question with similarity ${maxSimilarity.toFixed(
+          2
+        )}: "${bestMatch.question}"`
+      );
+
       // Cache the answer in Redis
-      await redisClient.set(userQuestion, bestMatch.answer, {
-        EX: 60 * 60, // Expires in 1 hour
-      });
-      console.log('Answer cached in Redis.');
+      try {
+        await redisClient.set(userQuestion, bestMatch.answer, {
+          EX: 60 * 60, // Expires in 1 hour
+        });
+        console.log('💾 Answer cached in Redis.');
+      } catch (err) {
+        console.error('❌ Redis SET error:', err);
+      }
+
       return res.json({ reply: bestMatch.answer });
     } else {
-      console.log('No similar question found. Querying OpenAI...');
+      console.log('❌ No similar question found. Querying OpenAI...');
 
       // Define enhanced product-specific context for OpenAI
       const productContext = `
@@ -240,7 +302,7 @@ app.post('/ask', async (req, res) => {
       });
 
       const answer = response.data.choices[0].message.content.trim();
-      console.log(`Generated answer: "${answer}"`);
+      console.log(`💡 Generated answer: "${answer}"`);
 
       // Save the new Q&A to chatHistory.json with embedding
       const newChat = {
@@ -251,19 +313,28 @@ app.post('/ask', async (req, res) => {
       };
       chatHistory.push(newChat);
       saveChatHistory(chatHistory);
-      console.log('New chat saved with embedding.');
+      console.log('📥 New chat saved with embedding.');
 
       // Cache the answer in Redis
-      await redisClient.set(userQuestion, answer, {
-        EX: 60 * 60, // Expires in 1 hour
-      });
-      console.log('Answer cached in Redis.');
+      try {
+        await redisClient.set(userQuestion, answer, {
+          EX: 60 * 60, // Expires in 1 hour
+        });
+        console.log('💾 Answer cached in Redis.');
+      } catch (err) {
+        console.error('❌ Redis SET error:', err);
+      }
 
       return res.json({ reply: answer });
     }
   } catch (error) {
-    console.error('Error processing /ask request:', error.response?.data || error.message);
-    res.status(500).json({ error: 'An error occurred while processing your request.' });
+    console.error(
+      '❌ Error processing /ask request:',
+      error.response?.data || error.message
+    );
+    res
+      .status(500)
+      .json({ error: 'An error occurred while processing your request.' });
   }
 });
 
@@ -277,17 +348,66 @@ app.post('/clear-history', authenticate, (req, res) => {
   try {
     chatHistory = [];
     saveChatHistory(chatHistory);
-    console.log('Chat history cleared.');
+    console.log('🗑️ Chat history cleared.');
     res.json({ message: 'Chat history has been cleared.' });
   } catch (error) {
-    console.error('Error clearing chat history:', error.message);
+    console.error('❌ Error clearing chat history:', error.message);
     res.status(500).json({ error: 'Failed to clear chat history.' });
   }
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// =======================
+// Server Initialization
+// =======================
+
+(async () => {
+  try {
+    // Connect to Redis
+    await redisClient.connect();
+    console.log('✅ Connected to Redis');
+
+    // Load chat history
+    chatHistory = loadChatHistory();
+
+    // Initialize embeddings for existing chat history
+    await initializeEmbeddings();
+
+    // Start the Express server
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to connect to Redis:', err);
+    process.exit(1); // Exit the application if Redis connection fails
+  }
+})();
+
+// =======================
+// Helper Function to Initialize Embeddings
+// =======================
+
+async function initializeEmbeddings() {
+  let updated = false;
+  for (let chat of chatHistory) {
+    if (!chat.embedding) {
+      console.log(`🔄 Generating embedding for question: "${chat.question}"`);
+      const embedding = await getEmbedding(chat.question);
+      if (embedding) {
+        chat.embedding = embedding;
+        updated = true;
+      } else {
+        console.warn(
+          `⚠️ Failed to generate embedding for question: "${chat.question}"`
+        );
+      }
+    }
+  }
+  if (updated) {
+    saveChatHistory(chatHistory);
+    console.log('✅ Updated chat history with new embeddings.');
+  } else {
+    console.log('ℹ️ All chat entries already have embeddings.');
+  }
+}
 

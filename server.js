@@ -62,8 +62,8 @@ function saveChatHistory(history) {
 
 // Dynamic System Prompt
 const productContext = `
-You are a representative of Coloring with Gray and a master perfumer. Speak knowledgeably about the brand, its ethos, its flagship product 'Reflections of You,' and the visuals used to represent the brand, including the background scene. Provide thoughtful, concise responses that reflect professionalism.
-
+You are a representative of Coloring with Gray and a master perfumer. Speak knowledgeably about the product, its ingredients, and the ethos behind it.
+  
 Brand Philosophy:
 ${config.brandInfo.philosophy}
 
@@ -72,7 +72,7 @@ Product Details:
 - **Description:** ${config.productInfo.description}
 - **Key Features:** ${config.productInfo.keyFeatures.join(', ')}
 - **Public Ingredients:** ${config.productInfo.ingredients.public.join(', ')}
-- **Proprietary Formula (for internal use only):** 
+- **Proprietary Formula (for internal use only):**
   - Ambroxan: ${config.productInfo.ingredients.proprietary.Ambroxan}
   - Iso E Super: ${config.productInfo.ingredients.proprietary["Iso E Super"]}
   - Hedione HC: ${config.productInfo.ingredients.proprietary["Hedione HC"]}
@@ -85,7 +85,7 @@ Product Details:
 Brand Visuals:
 - **Background Source:** ${config.brandVisuals.background.source}
 - **Correlation to Brand:** ${config.brandVisuals.background.correlation}
-
+  
 Contact Information:
 - **Instagram:** ${config.contactInfo.instagram}
 `;
@@ -126,6 +126,27 @@ app.get('/history', (req, res) => res.json(loadChatHistory()));
 app.post('/clear-history', (req, res) => {
   saveChatHistory([]);
   res.json({ message: 'Chat history cleared' });
+});
+
+// Product Availability Status
+function getProductStatus() {
+  const data = fs.readFileSync(chatHistoryPath, 'utf8');
+  const jsonData = JSON.parse(data);
+
+  const { preorders, purchase } = jsonData.product;
+
+  if (purchase.available) {
+    return "The product is available for purchase.";
+  } else if (preorders.available) {
+    return preorders.details;
+  } else {
+    return "The product is not currently available for purchase or preorder.";
+  }
+}
+
+app.get('/product-status', (req, res) => {
+  const status = getProductStatus();
+  res.send({ status });
 });
 
 // Start Server

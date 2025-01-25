@@ -49,10 +49,14 @@
     "name": "Reflections of You",
     "release_date": null,
     "preorders": {
-      "available": true,
-      "details": "Preorders will be available soon."
+      "available": false,
+      "details": "Preorders are not available yet."
+    },
+    "purchase": {
+      "available": false,
+      "details": "The product is not currently available for purchase."
     }
   }
 }
-}
+{
 []

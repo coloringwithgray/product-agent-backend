@@ -1,11 +1,11 @@
 {
   "brandInfo": {
     "name": "Coloring with Gray",
-    "philosophy": "Coloring with Gray is a brand rooted in creativity and interpretation. The name reflects a neutral, blank canvas—gray—symbolizing openness and the potential for individual expression. The parentheses around '(with)' highlight a point of focus while representing the flow of meanings and how perception evolves over time. It’s a brand for those who appreciate nuance, artistry, and personal resonance."
+    "philosophy": "Coloring with Gray is a brand rooted in creativity and intersectionality, designed to reflect the unique perspectives of its audience."
   },
   "productInfo": {
     "name": "Reflections of You",
-    "description": "Reflections of You is the inaugural fragrance, designed to amplify the wearer’s natural scent while standing beautifully on its own. Handmade in Los Angeles by order, the fragrance is crafted with the highest-quality ingredients sourced from around the world. The formula creates a multidimensional profile of warmth, sweetness, and grounded sophistication.",
+    "description": "Reflections of You is the inaugural fragrance, designed to amplify individuality and evoke deep personal connections.",
     "keyFeatures": [
       "Handmade in Los Angeles by order",
       "Highest-quality ingredients sourced globally",
@@ -17,11 +17,7 @@
       "public": [
         "Ambroxan",
         "Iso E Super",
-        "Hedione HC",
-        "Exaltone",
-        "Ethyl Maltol",
-        "Apple Note",
-        "Veramoss"
+        "Apple Note"
       ],
       "proprietary": {
         "Ambroxan": "28%",
@@ -33,7 +29,7 @@
         "Veramoss": "3%"
       }
     },
-    "ethos": "The fragrance embodies the brand’s ethos of subtlety and depth, creating a connection that allows the scent to adapt uniquely to each person, just as gray adapts to its surroundings."
+    "ethos": "The fragrance embodies the brand’s ethos of subtlety and depth, creating an elegant interplay between the wearer and their environment."
   },
   "contactInfo": {
     "instagram": "@coloringwithgray"
@@ -41,10 +37,9 @@
   "brandVisuals": {
     "background": {
       "source": "A scene from the film 'Powaqqatsi' (1988) by Godfrey Reggio.",
-      "correlation": "The scene reflects the brand’s ethos of transformation, individuality, and connection. Just as 'Powaqqatsi' explores the intersections of tradition, modernity, and humanity, 'Coloring with Gray' and its fragrance 'Reflections of You' celebrate the fusion of timeless craftsmanship and modern scent chemistry. The visual and olfactory experiences are tied by themes of contrast, evolution, and the beauty of nuanced expression."
+      "correlation": "The scene reflects the brand’s ethos of transformation, individuality, and interconnectedness."
     }
-  }
-{
+  },
   "product": {
     "name": "Reflections of You",
     "release_date": null,
@@ -58,5 +53,4 @@
     }
   }
 }
-{
-[]
+

@@ -1,7 +1,23 @@
 {
   "brandInfo": {
     "name": "Coloring with Gray",
-    "philosophy": "Coloring with Gray is a brand rooted in creativity and intersectionality, designed to reflect the unique perspectives of its audience."
+    "philosophy": "Coloring with Gray is a brand rooted in creativity and intersectionality, designed to reflect the unique perspectives of its audience.",
+    "inDepth": {
+      "corePhilosophy": {
+        "freedomThroughNeutrality": "The color gray symbolizes freedom, neutrality, and the ability to adapt and evolve. Gray absorbs its surroundings, picking up character as it ages, just like people. It reflects life’s experiences, representing the beauty of aging and the individuality that comes from wearing those experiences proudly.",
+        "intersectionOfCreativityAndConsumption": "The brand sees art as a two-sided process. Creation is only half the journey—the way a product is consumed and experienced completes it. This collaboration between creator and consumer mirrors the dynamic way gray interacts with its environment. Consumers are not passive; they actively shape the meaning and purpose of each product.",
+        "limitlessBoundaries": "The brand has no fixed borders—it’s open to any form of creative expression. Whether it's fragrance, home goods, or clothing, the focus is on creating intentional products that evoke emotion, tell stories, and add value to the consumer’s life.",
+        "empathyAndConnection": "At its heart, Coloring with Gray is about fostering human connection and encouraging people to see themselves and others as artists. By pushing boundaries, the brand aims to inspire people to appreciate art, quality, and the infinite possibilities of creativity."
+      },
+      "designAndSustainability": {
+        "multiFunctionalPackaging": "Every aspect of the product is thoughtfully designed to minimize waste. Packaging is envisioned as something reusable and meaningful—an extension of the product itself.",
+        "independentUniverses": "Each main product is its own story, creating a distinct 'universe' around it. This allows the consumer to experience the product not just as an object but as part of an immersive narrative."
+      },
+      "aestheticAndAudience": {
+        "aesthetic": "Sleek, modern, and concept-driven. Products are designed to be beautiful, functional, and symbolic, with attention to detail that feels intentional and luxurious.",
+        "audience": "Sophisticated individuals who value creativity, art, and intentional living. It appeals to those who enjoy high-end craftsmanship and thoughtful design, pushing for an emotional connection rather than a purely transactional relationship."
+      }
+    }
   },
   "productInfo": {
     "name": "Reflections of You",
@@ -29,7 +45,14 @@
         "Veramoss": "3%"
       }
     },
-    "ethos": "The fragrance embodies the brand’s ethos of subtlety and depth, creating an elegant interplay between the wearer and their environment."
+    "ethos": "The fragrance embodies the brand’s ethos of subtlety and depth, creating an elegant interplay between the wearer and their environment.",
+    "alignmentWithBrand": {
+      "collaborationBetweenCreatorAndConsumer": "Reflections of You is designed to amplify the wearer’s natural scent, making it deeply personal and unique, just like gray adapting to its surroundings.",
+      "individualUniverses": "Packaging in a mirrored jewelry box or keepsake emphasizes reflection, beauty, and individuality, making the product more than just a perfume.",
+      "sustainabilityAndThoughtfulDesign": "Handmade, small-batch production in Los Angeles minimizes waste and adds lasting value, aligning with Coloring with Gray’s ethos of quality and intentionality.",
+      "thematicResonance": "The name highlights freedom, individuality, and growth—celebrating personal experiences much like how gray represents the accumulation of character over time.",
+      "audienceConnection": "Reflections of You caters to those valuing artistry and quality—an intimate, emotional connection that sees fragrance as an extension of identity."
+    }
   },
   "contactInfo": {
     "instagram": "@coloringwithgray"
@@ -51,6 +74,11 @@
       "available": false,
       "details": "The product is not currently available for purchase."
     }
+  },
+  "opportunitiesForExpansion": {
+    "interactiveLaunch": "Create a pop-up experience where consumers can explore the 'universe' of the fragrance through interactive installations, storytelling, and personalization stations.",
+    "collaborativeExtensions": "Offer limited editions of the perfume in collaboration with other artists—like custom bottle designs or complementary products (candles, notebooks) inspired by the fragrance.",
+    "artfulStorytelling": "Share the creation process as part of the narrative—how each ingredient was chosen to reflect themes of character, growth, and connection."
   }
 }
 

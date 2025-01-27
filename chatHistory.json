@@ -1,2 +1,15 @@
-[]
+{
+  "product": {
+    "name": "Reflections of You",
+    "release_date": null,
+    "preorders": {
+      "available": false,
+      "details": "Preorders are not available yet."
+    },
+    "purchase": {
+      "available": false,
+      "details": "The product is not currently available for purchase."
+    }
+  }
+}
 
